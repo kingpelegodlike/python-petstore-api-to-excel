@@ -1,0 +1,26 @@
+[[source]]
+url = "https://pypi.org/simple"
+verify_ssl = true
+name = "pypi"
+
+[[source]]
+url = "https://%ARTIFACTORY_RO_USER%:%ARTIFACTORY_RO_TOKEN%@artifactory.global.ingenico.com/artifactory/api/pypi/core-pypi/simple"
+verify_ssl = true
+name = "%ARTIFACTORY_RO_USER%%ARTIFACTORY_RO_TOKEN%@artifactoryglobalingenico"
+
+[packages]
+openapi-generator-cli = "*"
+connexion = {version = "<=2.14.2", extras = ["swagger-ui"]}
+werkzeug = "==2.1.0"
+swagger-ui-bundle = ">=0.0.2"
+python-dateutil = ">=2.6.0"
+flask = "==2.1.1"
+openpyxl = {version = "*", index = "%ARTIFACTORY_RO_USER%%ARTIFACTORY_RO_TOKEN%@artifactoryglobalingenico"}
+
+[dev-packages]
+pytest = "*"
+pytest-cov = "*"
+pylint = "*"
+
+[requires]
+python_version = "3.12"
