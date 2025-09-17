@@ -8,26 +8,26 @@ is an example of building a OpenAPI-enabled Flask server.
 This example uses the [Connexion](https://github.com/zalando/connexion) library on top of Flask.
 
 ## Requirements
-Python 3.5.2+
+Python 3.12
 
 ## Usage
 To run the server, please execute the following from the root directory:
 
 ```
-pip3 install -r requirements.txt
+python3 -m pipenv sync --dev
 python3 -m openapi_server
 ```
 
 and open your browser to here:
 
 ```
-http://localhost:8080/api/v3/ui/
+http://localhost:5000/api/v3/ui/
 ```
 
 Your OpenAPI definition lives here:
 
 ```
-http://localhost:8080/api/v3/openapi.json
+http://localhost:5000/api/v3/openapi.json
 ```
 
 To launch the integration tests, use tox:
@@ -45,5 +45,25 @@ To run the server on a Docker container, please execute the following from the r
 docker build -t openapi_server .
 
 # starting up a container
-docker run -p 8080:8080 openapi_server
+docker run -p 8080:5000 openapi_server
+```
+
+## TEST
+
+### With API
+
+```PowerShell
+start http://127.0.0.1:5000/api/v3/ui
+```
+
+### With command lines
+
+#### To add a User:
+
+```PowerShell
+Invoke-RestMethod -Method Post -Uri http://127.0.0.1:5000/api/v3/user -Headers @{Authorization = "Basic $base64AuthInfo" } -Credential $credential -ContentType 'application/json'  -Body '{"email": "john@email.com","firstName": "John","id": 10,"lastName": "James","password": "12345","phone": "12345","userStatus": 1,"username": "theUser"}'
+```
+
+```cmd
+curl -X 'POST' 'http://127.0.0.1:5000/api/v3/user' -H 'accept: application/json' -H 'Content-Type: application/json' -d '{"email": "john@email.com","firstName": "John","id": 10,"lastName": "James","password": "12345","phone": "12345","userStatus": 1,"username": "theUser"}'
 ```
