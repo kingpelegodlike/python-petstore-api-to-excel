@@ -58,6 +58,18 @@ start http://127.0.0.1:5000/api/v3/ui
 
 ### With command lines
 
+#### To login:
+
+example with user name 'theUser' and password '12345':  
+
+```PowerShell
+Invoke-RestMethod -Method Get -Uri 'http://127.0.0.1:5000/api/v3/user/login?username=theUser&password=12345' -Headers @{Authorization = "Basic $base64AuthInfo" } -Credential $credential -ContentType 'application/json'
+```
+
+```cmd
+curl -X 'GET' 'http://127.0.0.1:5000/api/v3/user/login?username=theUser&password=12345' -H 'accept: application/json'
+```
+
 #### To add a User:
 
 ```PowerShell
@@ -66,4 +78,40 @@ Invoke-RestMethod -Method Post -Uri http://127.0.0.1:5000/api/v3/user -Headers @
 
 ```cmd
 curl -X 'POST' 'http://127.0.0.1:5000/api/v3/user' -H 'accept: application/json' -H 'Content-Type: application/json' -d '{"email": "john@email.com","firstName": "John","id": 10,"lastName": "James","password": "12345","phone": "12345","userStatus": 1,"username": "theUser"}'
+```
+
+### To delete a User
+
+example with user name 'theUser':  
+
+```PowerShell
+Invoke-RestMethod -Method Delete -Uri http://127.0.0.1:5000/api/v3/user/theUser -Headers @{Authorization = "Basic $base64AuthInfo" } -Credential $credential -ContentType 'application/json'
+```
+
+```cmd
+curl -X 'DELETE' 'http://127.0.0.1:5000/api/v3/user/theUser' -H 'accept: application/json' -H 'Content-Type: application/json'
+```
+
+### To Get user detail based on username
+
+example with user name 'theUser':  
+
+```PowerShell
+Invoke-RestMethod -Method Get -Uri http://127.0.0.1:5000/api/v3/user/theUser -Headers @{Authorization = "Basic $base64AuthInfo" } -Credential $credential -ContentType 'application/json'
+```
+
+```cmd
+curl -X 'GET' 'http://127.0.0.1:5000/api/v3/user/theUser' -H 'accept: application/json' -H 'Content-Type: application/json'
+```
+
+#### To Update an existent user in the store
+
+example with user name 'theUser':  
+
+```PowerShell
+Invoke-RestMethod -Method Put -Uri http://127.0.0.1:5000/api/v3/user/theUser -Headers @{Authorization = "Basic $base64AuthInfo" } -Credential $credential -ContentType 'application/json'  -Body '{"email": "john@email.com","firstName": "John","id": 10,"lastName": "James","password": "12345","phone": "12345","userStatus": 1,"username": "theNewUser"}'
+```
+
+```cmd
+curl -X 'PUT' 'http://127.0.0.1:5000/api/v3/user/theUser' -H 'accept: application/json' -H 'Content-Type: application/json' -d '{"email": "john@email.com","firstName": "John","id": 10,"lastName": "James","password": "12345","phone": "12345","userStatus": 1,"username": "theNewUser"}'
 ```

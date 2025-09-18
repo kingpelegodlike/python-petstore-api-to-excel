@@ -12,19 +12,7 @@ from openpyxl import Workbook
 from openpyxl import load_workbook
 from openpyxl.reader.excel import ExcelReader
 
-
-# Convert worksheet data to a list of dictionaries
-def sheet_to_dict(sheet):
-    data = []
-    headers = [cell.value for cell in sheet[1]]  # First row as headers
-    
-    for row in sheet.iter_rows(min_row=2, values_only=True):
-        row_data = {}
-        for key, value in zip(headers, row):
-            row_data[key] = value
-        data.append(row_data)
-    
-    return data
+logged_in_usernames = {}
 
 
 def create_user(body=None):  # noqa: E501
@@ -40,48 +28,45 @@ def create_user(body=None):  # noqa: E501
     user = body
     if connexion.request.is_json:
         user = User.from_dict(connexion.request.get_json())  # noqa: E501
-    # reader = ExcelReader("sample.xlsx")
-    # reader.read()
-    # wb = Workbook()
-    # wb = reader.wb
+
+    # Load the existing workbook
     wb = load_workbook('sample.xlsx', read_only=False, data_only=False)
 
     # grab the active worksheet
     ws = wb.active
-    
-    # data_dict = sheet_to_dict(ws)
-    # for row in data_dict:
-    #     print(row)
-    #     if row['ID'] == user.id:
-    #         return Error('800', 'ID already exist')
+
+    # Check for existing ID and find the next empty row
     max_row = 2
+    username_list = []
     for row in ws.iter_rows(min_row=2, values_only=True):
         if row[0] == user.id:
             print("ID already exist")
-            return Error('800', 'ID already exist')
+            return (None, 800, Error('800', 'ID already exist').to_dict())
         if row[0] is None:
             break
         print(row)
+        username_list.append(row[1])
         max_row += 1
     print(f"Max row:{max_row}")
 
-    # Data can be assigned directly to cells
-    # ws['A3'] = user.id
-    data = [user.id, user.username, user.first_name, user.email, datetime.datetime.now()]
+    if user.username in username_list:
+        print("Username already exist")
+        return (None, 801, Error('801', 'Username already exist').to_dict())
 
-    # Rows can also be appended
-    # ws.append([user.username, user.first_name, user.email])
-    # ws.append(data)
+    # Add user data to the next empty row
+    data = [
+        user.id, user.username, user.last_name, user.first_name,
+        user.email, user.password, user.phone, user.user_status,
+        datetime.datetime.now()
+    ]
     for col_idx, cell_value in enumerate(data, start=1):
         print(f"Add col_idx:{col_idx}, cell_value:{cell_value}")
         ws.cell(row=max_row, column=col_idx, value=cell_value)
 
-    # Python types will automatically be converted
-    # ws['A4'] = datetime.datetime.now()
-
     # Save the file
     wb.save("sample.xlsx")
-    return 'do some magic!'
+    # return 'User created successfully'
+    return user.to_dict()
 
 
 def create_users_with_list_input(body=None):  # noqa: E501
@@ -110,7 +95,30 @@ def delete_user(username):  # noqa: E501
 
     :rtype: Union[None, Tuple[None, int], Tuple[None, int, Dict[str, str]]
     """
-    return 'do some magic!'
+
+    # Load the existing workbook
+    wb = load_workbook('sample.xlsx', read_only=False, data_only=False)
+
+    # grab the Users worksheet
+    ws = wb['Users']
+
+    # Check for existing ID and find the next empty row
+    max_row = 2
+    username_found = False
+    for row in ws.iter_rows(min_row=2, values_only=True):
+        if row[1] == username:
+            print("Found user to delete")
+            username_found = True
+            break
+        if row[0] is None:
+            break
+        print(row)
+        max_row += 1
+    if not username_found:
+        return (None, 404, Error('404', 'User not found').to_dict())
+    ws.delete_rows(max_row)
+    wb.save("sample.xlsx")
+    return None, 200
 
 
 def get_user_by_name(username):  # noqa: E501
@@ -123,7 +131,31 @@ def get_user_by_name(username):  # noqa: E501
 
     :rtype: Union[User, Tuple[User, int], Tuple[User, int, Dict[str, str]]
     """
-    return 'do some magic!'
+
+    # Load the existing workbook
+    wb = load_workbook('sample.xlsx', read_only=False, data_only=False)
+
+    # grab the Users worksheet
+    ws = wb['Users']
+
+    max_row = 2
+    user = None
+    for row in ws.iter_rows(min_row=2, values_only=True):
+        if row[1] == username:
+            print("Found username")
+            user = User(
+                id=row[0], username=row[1], last_name=row[2], first_name=row[3],
+                email=row[4], password=row[5], phone=row[6], user_status=row[7]
+            )
+            break
+        if row[0] is None:
+            break
+        print(row)
+        max_row += 1
+    wb.close()
+    if user is None:
+        return (None, 404, Error('404', 'User not found').to_dict())
+    return user, 200
 
 
 def login_user(username=None, password=None):  # noqa: E501
@@ -138,7 +170,29 @@ def login_user(username=None, password=None):  # noqa: E501
 
     :rtype: Union[str, Tuple[str, int], Tuple[str, int, Dict[str, str]]
     """
-    return 'do some magic!'
+
+    # Load the existing workbook
+    wb = load_workbook('sample.xlsx', read_only=False, data_only=False)
+
+    # grab the Users worksheet
+    ws = wb['Users']
+
+    max_row = 2
+    user_can_login = False
+    for row in ws.iter_rows(min_row=2, values_only=True):
+        if row[1] == username and row[5] == password:
+            print("User can login")
+            logged_in_usernames.update({"username": username})
+            user_can_login = True
+            break
+        if row[0] is None:
+            break
+        print(row)
+        max_row += 1
+    wb.close()
+    if not user_can_login:
+        return (None, 400, Error('400', 'Invalid username/password supplied').to_dict())
+    return f'{username} logged in successfully', 200
 
 
 def logout_user():  # noqa: E501
@@ -164,7 +218,46 @@ def update_user(username, body=None):  # noqa: E501
 
     :rtype: Union[None, Tuple[None, int], Tuple[None, int, Dict[str, str]]
     """
+    if username not in logged_in_usernames:
+        print(f"{username} not logged in")
+        return (None, 400, Error('400', 'User not logged in').to_dict())
     user = body
     if connexion.request.is_json:
         user = User.from_dict(connexion.request.get_json())  # noqa: E501
-    return 'do some magic!'
+
+    # Load the existing workbook
+    wb = load_workbook('sample.xlsx', read_only=False, data_only=False)
+
+    # grab the Users worksheet
+    ws = wb['Users']
+
+    data = [
+        user.id, user.username, user.last_name, user.first_name,
+        user.email, user.password, user.phone, user.user_status,
+        datetime.datetime.now()
+    ]
+
+    max_row = 2
+    username_list = []
+    username_row = None
+    for row in ws.iter_rows(min_row=2, values_only=True):
+        if row[1] == username:
+            print("Found username to update")
+            username_row = max_row
+        if row[0] is None:
+            break
+        print(row)
+        username_list.append(row[1])
+        max_row += 1
+    print(f"Max row:{max_row}")
+    if username_row is None:
+        wb.close()
+        return (None, 404, Error('404', 'User not found').to_dict())
+    if user.username in username_list:
+        wb.close()
+        return (None, 801, Error('801', 'Username already exist').to_dict())
+    for col_idx, cell_value in enumerate(data, start=1):
+        print(f"Update col_idx:{col_idx}, cell_value:{cell_value}")
+        ws.cell(row=username_row, column=col_idx, value=cell_value)
+    wb.save("sample.xlsx")
+    return None, 200
