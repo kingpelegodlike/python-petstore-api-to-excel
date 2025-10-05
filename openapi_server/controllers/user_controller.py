@@ -33,7 +33,7 @@ def create_user(body=None):  # noqa: E501
     wb = load_workbook('sample.xlsx', read_only=False, data_only=False)
 
     # grab the active worksheet
-    ws = wb.active
+    ws = wb["Users"]
 
     # Check for existing ID and find the next empty row
     max_row = 2
@@ -218,9 +218,9 @@ def update_user(username, body=None):  # noqa: E501
 
     :rtype: Union[None, Tuple[None, int], Tuple[None, int, Dict[str, str]]
     """
-    if username not in logged_in_usernames:
-        print(f"{username} not logged in")
-        return (None, 400, Error('400', 'User not logged in').to_dict())
+    # if username not in logged_in_usernames:
+    #     print(f"{username} not logged in")
+    #     return (None, 400, Error('400', 'User not logged in').to_dict())
     user = body
     if connexion.request.is_json:
         user = User.from_dict(connexion.request.get_json())  # noqa: E501

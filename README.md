@@ -50,28 +50,46 @@ docker run -p 8080:5000 openapi_server
 
 ## TEST
 
+Use sample.xlsx Excel file as database file (copy of sampleTemplate.xlsx)
+This file contain the following sheets:  
+Users: 
+![alt text](/img/sheet_users.png)  
+Pets: 
+![alt text](/img/sheet_pets.png)  
+Orders: 
+![alt text](/img/sheet_orders.png)  
+Categories: 
+![alt text](/img/sheet_categories.png)  
+Tags: 
+![alt text](/img/sheet_tags.png)  
+
 ### With API
 
 ```PowerShell
 start http://127.0.0.1:5000/api/v3/ui
 ```
+![alt text](/img/web_api.png)  
 
 ### With command lines
 
 #### To login:
 
-example with user name 'theUser' and password '12345':  
+example with user name 'user' and password 'user':  
+![alt text](/img/web_api_user_login.png)  
 
 ```PowerShell
-Invoke-RestMethod -Method Get -Uri 'http://127.0.0.1:5000/api/v3/user/login?username=theUser&password=12345' -Headers @{Authorization = "Basic $base64AuthInfo" } -Credential $credential -ContentType 'application/json'
+Invoke-RestMethod -Method Get -Uri 'http://127.0.0.1:5000/api/v3/user/login?username=user&password=user' -Headers @{Authorization = "Basic $base64AuthInfo" } -Credential $credential -ContentType 'application/json'
 ```
 
 ```cmd
-curl -X 'GET' 'http://127.0.0.1:5000/api/v3/user/login?username=theUser&password=12345' -H 'accept: application/json'
+curl -X 'GET' 'http://127.0.0.1:5000/api/v3/user/login?username=user&password=user' -H 'accept: application/json'
 ```
+![alt text](/img/web_api_user_login_response.png)  
 
 #### To add a User:
 
+example to add a user with user name 'theUser', id '10', last name 'James', first name 'John', email 'john@email.com', password '12345', status '1', phone '12345':  
+![alt text](/img/web_api_user_create.png)  
 ```PowerShell
 Invoke-RestMethod -Method Post -Uri http://127.0.0.1:5000/api/v3/user -Headers @{Authorization = "Basic $base64AuthInfo" } -Credential $credential -ContentType 'application/json'  -Body '{"email": "john@email.com","firstName": "John","id": 10,"lastName": "James","password": "12345","phone": "12345","userStatus": 1,"username": "theUser"}'
 ```
@@ -79,10 +97,14 @@ Invoke-RestMethod -Method Post -Uri http://127.0.0.1:5000/api/v3/user -Headers @
 ```cmd
 curl -X 'POST' 'http://127.0.0.1:5000/api/v3/user' -H 'accept: application/json' -H 'Content-Type: application/json' -d '{"email": "john@email.com","firstName": "John","id": 10,"lastName": "James","password": "12345","phone": "12345","userStatus": 1,"username": "theUser"}'
 ```
+![alt text](/img/excell_user_create_response.png)  
+![alt text](/img/web_api_user_create_response.png)  
+
 
 ### To delete a User
 
 example with user name 'theUser':  
+![alt text](/img/web_api_user_delete.png)  
 
 ```PowerShell
 Invoke-RestMethod -Method Delete -Uri http://127.0.0.1:5000/api/v3/user/theUser -Headers @{Authorization = "Basic $base64AuthInfo" } -Credential $credential -ContentType 'application/json'
@@ -91,10 +113,13 @@ Invoke-RestMethod -Method Delete -Uri http://127.0.0.1:5000/api/v3/user/theUser 
 ```cmd
 curl -X 'DELETE' 'http://127.0.0.1:5000/api/v3/user/theUser' -H 'accept: application/json' -H 'Content-Type: application/json'
 ```
+![alt text](/img/excell_user_delete_response.png)  
+![alt text](/img/web_api_user_delete_response.png)  
 
 ### To Get user detail based on username
 
 example with user name 'theUser':  
+![alt text](/img/web_api_user_detail.png)  
 
 ```PowerShell
 Invoke-RestMethod -Method Get -Uri http://127.0.0.1:5000/api/v3/user/theUser -Headers @{Authorization = "Basic $base64AuthInfo" } -Credential $credential -ContentType 'application/json'
@@ -103,10 +128,12 @@ Invoke-RestMethod -Method Get -Uri http://127.0.0.1:5000/api/v3/user/theUser -He
 ```cmd
 curl -X 'GET' 'http://127.0.0.1:5000/api/v3/user/theUser' -H 'accept: application/json' -H 'Content-Type: application/json'
 ```
+![alt text](/img/web_api_user_detail_response.png)  
 
 #### To Update an existent user in the store
 
-example with user name 'theUser':  
+example with user name 'theUser' updated with user name 'theNewUser':  
+![alt text](/img/web_api_user_update.png)  
 
 ```PowerShell
 Invoke-RestMethod -Method Put -Uri http://127.0.0.1:5000/api/v3/user/theUser -Headers @{Authorization = "Basic $base64AuthInfo" } -Credential $credential -ContentType 'application/json'  -Body '{"email": "john@email.com","firstName": "John","id": 10,"lastName": "James","password": "12345","phone": "12345","userStatus": 1,"username": "theNewUser"}'
@@ -115,3 +142,19 @@ Invoke-RestMethod -Method Put -Uri http://127.0.0.1:5000/api/v3/user/theUser -He
 ```cmd
 curl -X 'PUT' 'http://127.0.0.1:5000/api/v3/user/theUser' -H 'accept: application/json' -H 'Content-Type: application/json' -d '{"email": "john@email.com","firstName": "John","id": 10,"lastName": "James","password": "12345","phone": "12345","userStatus": 1,"username": "theNewUser"}'
 ```
+![alt text](/img/excell_user_update_response.png)  
+![alt text](/img/web_api_user_update_response.png)  
+
+### To Get pet based on ID
+
+example with pet ID '1':  
+![alt text](/img/web_api_pet_get_by_id.png)  
+
+```PowerShell
+Invoke-RestMethod -Uri 'http://127.00.1:5000/api/v3/pet/1' -Method Get -Headers @{ 'accept' = 'application/json'; 'api_key' = '2' }
+```
+
+```cmd
+curl -X 'GET' 'http://127.0.0.1:5000/api/v3/pet/1' -H 'accept: application/json' -H 'api_key: 2'
+```
+![alt text](/img/web_api_pet_get_by_id_response.png)  
